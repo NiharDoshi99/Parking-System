@@ -18,6 +18,7 @@ class ParkSystem {
 int MAX_SIZE = 0;
 public:
   fstream outputFile;
+
   //list of avalible slots
   vector<int> availableSlots;
 
@@ -154,9 +155,15 @@ vector<string> split(const string &s , char delim) {
 
 
 int main() {
+  
   ParkSystem myParkSystem;
   string myText;
   ifstream MyReadFile("input.txt");
+
+  if(!MyReadFile) {
+    cout << "Input file not found\n";
+    return 0;
+  }
   
   while (getline (MyReadFile, myText)) {
     
