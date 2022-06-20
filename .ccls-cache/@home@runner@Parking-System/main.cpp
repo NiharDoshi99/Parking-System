@@ -20,7 +20,7 @@ public:
   fstream outputFile;
 
   //list of avalible slots
-  vector<int> availableSlots;
+  vector<Car> availableSlots;
 
   // map of slot and car 
   map<int, Car> mp1;
@@ -28,15 +28,23 @@ public:
   //map of age and list of registration number and slot of driver 
   map<int,vector<pair<string,int>>> mp3;
 
+  int findNextAvailableSlot() {
+    for(int i = 1 ; i < MAX_SIZE ; i++) {
+      if(availableSlots[i].age == -1 && availableSlots[i].regNo == "") {
+        return i;
+      }
+    }
+
+    return -1;
+  }
+
   bool createParkSytem(int n) {
-    MAX_SIZE = n;
+    MAX_SIZE = n + 1;
+    availableSlots.resize(n + 1 , {"" , -1});
     cout << "Created parking of " << n << " slots" << endl;
     string output = "Created parking of " + to_string(n) + " slots\n";
     outputFile.open("output.txt", ios::out);
     writeInFile(output);
-    for(int i = 1 ; i <= MAX_SIZE ; i++) {
-      availableSlots.push_back(i);
-    }
     return true;
   }
 
@@ -47,16 +55,17 @@ public:
       return ;
     }
 
-    sort(availableSlots.begin() , availableSlots.end());
-
-    int slot = availableSlots[0];
-
+    int slot = findNextAvailableSlot();
+    if(slot == -1) {
+      cout << "No slot available\n";
+      return ;
+    }
+    
     Car car(regNo , age);
+    availableSlots[slot] = car;
     mp1.insert({slot, car});
-
+  
     mp3[age].push_back({regNo,slot});
-    auto it = availableSlots.begin();
-    availableSlots.erase(it);
     cout << "Car with vehicle registration number \""<< regNo <<"\" has been parked at slot number " << slot << endl;
     string output = "Car with vehicle registration number \"" + regNo + "\" has been parked at slot number " + to_string(slot) + "\n";
     writeInFile(output);
@@ -82,13 +91,16 @@ public:
           }
         }
 
+        availableSlots[slot] = {"", -1};
+
         cout << "Slot number "<< slot << " vacated, the car with vehicle registration number \""<< carToLeave.regNo <<"\" left the space, the driver of the car was of age " << carToLeave.age << endl;
         
         string output = "Slot number " + to_string(slot) + " vacated, the car with vehicle registration number \"" + carToLeave.regNo + "\" left the space, the driver of the car was of age " + to_string(carToLeave.age) + "\n";
         writeInFile(output);
+        
       }
     }
-    availableSlots.push_back(slot);
+    
   }
 
   void getSlotNumber(string regNo) {
